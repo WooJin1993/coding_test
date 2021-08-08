@@ -1,266 +1,47 @@
-# def get_refined_cmd(cmd):
-#     refined_cmd = []
-#     result = 0
-    
-#     for c in cmd:
-#         if c[0] == "D":
-#             result += int(c[2:])
-#         elif c[0] == "U":
-#             result -= int(c[2:])
-#         else:
-#             if result:
-#                 refined_cmd.append(result)
-                
-#             result = 0
-#             refined_cmd.append(c)
-    
-#     return refined_cmd
-
-# class Node:
-#     def __init__(self, data):
-#         self.data = data
-#         self.next = None
-#         self.prev = None
-
-# class DoublyLinkedList: 
-#     def __init__(self):
-#         self.head = None
-#         self.tail = self.head
-    
-#     def add(self, data):
-#         new_node = Node(data)
-        
-#         if not self.head:
-#             self.head = new_node
-#             self.tail = self.head
-#         else:
-#             node = self.head
-            
-#             while node.next:
-#                 node = node.next
-            
-#             new_node.prev = node
-#             node.next = new_node
-#             self.tail = new_node
-    
-#     def delete(self, data):
-#         node = self.head
-    
-#         if node.data == data:
-#             self.head = node.next
-#             del node
-#         else:
-#             while node.next:
-#                 next_node = node.next
-                
-#                 if next_node.data == data:
-#                     node.next = next_node.next
-#                     del next_node
-#                 else:
-#                     node = node.next
-    
-#     def find(self, data):
-#         node = self.head
-        
-#         while node:
-#             if node.data == data:
-#                 return node
-#             else:
-#                 node = node.next
-    
-#     def print(self):
-#         node = self.head
-        
-#         while node:
-#             print(node.data)
-#             node = node.next
-
-class Node(object):
-    def __init__(self, data, prev = None, next = None):
-        self.data = data
-        self.prev = prev
-        self.next = next
-
-class DList(object):
-    def __init__(self):
-        self.head = Node(None)
-        self.tail = Node(None, self.head)
-        self.head.next = self.tail
-        self.size = 0
-    
-    def listSize(self):
-        return self.size
-    
-    def is_empty(self):
-        if self.size != 0:
-            return False
-        else:
-            return True
-    
-    def selectNode(self, idx):
-        if idx > self.size:
-            print("Overflow: Index Error")
-            return None
-        if idx == 0:
-            return self.head
-        if idx == self.size:
-            return self.tail
-        if idx <= self.size//2:
-            target = self.head
-            for _ in range(idx):
-                target = target.next
-            return target
-        else:
-            target = self.tail
-            for _ in range(self.size - idx):
-                target = target.prev
-            return target
-    
-    def appendleft(self, value):
-        if self.is_empty():
-            self.head = Node(value)
-            self.tail = Node(None, self.head)
-            self.head.next = self.tail
-        else:
-            tmp = self.head
-            self.head = Node(value, None, self.head)
-            tmp.prev = self.head
-        self.size += 1
-            
-    
-    def append(self, value):
-        if self.is_empty():
-            self.head = Node(value)
-            self.tail = Node(None, self.head)
-            self.head.next = self.tail
-        else:
-            tmp = self.tail.prev
-            newNode = Node(value, tmp, self.tail)
-            tmp.next = newNode
-            self.tail.prev = newNode
-        self.size += 1
-    
-    def insert(self, value, idx):
-        if self.is_empty():
-            self.head = Node(value)
-            self.tail = Node(None, self.head)
-            self.head.next = self.tail
-        else:
-            tmp = self.selectNode(idx)
-            if tmp == None:
-                return
-            if tmp == self.head:
-                self.appendleft(value)
-            elif tmp == self.tail:
-                self.append(value)
-            else:
-                tmp_prev = tmp.prev
-                newNode = Node(value, tmp_prev, tmp)
-                tmp_prev.next = newNode
-                tmp.prev = newNode
-        self.size += 1
-        
-    def delete(self, idx):
-        if self.is_empty():
-            print("Underflow Error")
-            return
-        else:
-            tmp = self.selectNode(idx)
-            if tmp == None:
-                return
-            elif tmp == self.head:
-                tmp = self.head
-                self.head = self.head.next
-            elif tmp == self.tail:
-                tmp = self.tail
-                self.tail = self.tail.prev
-            else:
-                tmp.prev.next = tmp.next
-                tmp.next.prev = tmp.prev
-            del(tmp)
-            self.size -= 1
-    
-    def printlist(self):
-        target = self.head
-        while target != self.tail:
-            if target.next != self.tail:
-                print(target.data, '<=> ', end='')
-            else:
-                print(target.data)
-            target = target.next
-
-def solution(n, k, cmd):
-    llist = DList()
-    removed = []
-    
-    for i in range(n):
-        llist.add(i)
-    
-    node = llist.find(k)
-    
-    for c in cmd:
-        if c[0] == "D":
-            for _ in range(int(c[2:])):
-                node = node.next
-        elif c[0] == "U":
-            for _ in range(int(c[2:])):
-                node = node.prev
-        elif c == "C":
-            idx = node.data
-            llist.delete(idx)
-            node = node.next
-            
-            if node is None:
-                node = llist.find(idx - 1)
-            
-            removed.append(idx)
-        else:
-            new_idx = removed.pop()
-            
-
 # --- 첫 풀이 ---
+# 정확성만 성공
 # 효율성 전부 실패
 
 def solution(n, k, cmd):
-    del_idx = []
+    delete = []
     
     for s in cmd:             
         if s[0] == "D":
             for _ in range(int(s[2:])):
                 k += 1
-                while k in del_idx:
+                while k in delete:
                     k += 1
         elif s[0] == "U":
             for _ in range(int(s[2:])):
                 k -= 1
-                while k in del_idx:
+                while k in delete:
                     k -= 1
         elif s == "C":
-            del_idx.append(k)
+            delete.append(k)
             
             if k == n - 1:
                 k -= 1
-                while k in del_idx:
+                while k in delete:
                     k -= 1
-            elif set(range(k + 1, n)) <= set(del_idx):
+            elif set(range(k + 1, n)) <= set(delete):
                 k -= 1
-                while k in del_idx:
+                while k in delete:
                     k -= 1
             else:
                 k += 1
-                while k in del_idx:
+                while k in delete:
                     k += 1
         else:
-            del_idx.pop()
+            delete.pop()
             
     result = n * ["O"]
     
-    for idx in del_idx:
-        result[idx] = "X"
+    for i in delete:
+        result[i] = "X"
     
     return "".join(result)
 
-# --- heap을 이용한 풀이1 ---
+# --- heap을 이용한 풀이 1 ---
 
 from heapq import heappop, heappush
 
@@ -316,7 +97,7 @@ def solution(n, k, cmd):
     
     return "".join(result)
 
-# --- heap을 이용한 풀이2 ---
+# --- heap을 이용한 풀이 2 ---
 
 from heapq import heappop, heappush
 
@@ -387,4 +168,165 @@ def solution(n, k, cmd):
     for i in delete:
         result[i] = "X"
 
+    return "".join(result)
+
+# --- LinkedList를 이용한 풀이 1 ---
+# Node 클래스 구현
+
+class Node:
+    def __init__(self, value):
+        self.value = value
+        self.left = None
+        self.right = None
+
+def solution(n, k, cmd):
+    delete = []
+    nodes = [Node(i) for i in range(n)]
+
+    for i in range(1, n - 1):
+        nodes[i].left = nodes[i - 1]
+        nodes[i - 1].right = nodes[i]
+        
+        nodes[i].right = nodes[i + 1]
+        nodes[i + 1].left = nodes[i]
+
+    cur_node = nodes[k]
+    
+    for c in cmd:
+        if c[0] == "D":
+            move = int(c.split()[-1])
+            
+            for _ in range(move):
+                cur_node = cur_node.right
+        elif c[0] == "U":
+            move = int(c.split()[-1])
+            
+            for _ in range(move):
+                cur_node = cur_node.left
+        elif c == "C":
+            delete.append(cur_node)
+            left_node, right_node = cur_node.left, cur_node.right
+
+            if left_node:
+                left_node.right = right_node
+            
+            if right_node:
+                cur_node = right_node
+                right_node.left = left_node
+            else:
+                cur_node = left_node
+        else:
+            repair = delete.pop()
+            left_node, right_node = repair.left, repair.right
+
+            if left_node:
+                left_node.right = repair
+
+            if right_node:
+                right_node.left = repair
+
+    result = ["O"] * n
+
+    for node in delete:
+        result[node.value] = "X"
+
+    return "".join(result)
+
+# --- LinkedList를 이용한 풀이 2 ---
+# list로 LinkedList 구현
+# 런타임 에러 3개
+
+def solution(n, k, cmd):
+    current = k
+    Llist = [[i - 1, i + 1] for i in range(n)] # current 위치에 [prev, next]를 저장 (LinkedList 구현 목적)
+    delete = []
+    
+    for c in cmd:
+        if c[0] == "D":
+            move = int(c.split()[-1])
+            
+            for _ in range(move):
+                current = Llist[current][1]
+        elif c[0] == "U":
+            move = int(c.split()[-1])
+            
+            for _ in range(move):
+                current = Llist[current][0]
+        elif c == "C":
+            delete.append(current)
+            left, right = Llist[current]
+            
+            if right == n: # 삭제된 행이 가장 마지막 행인 경우
+                current = left
+                Llist[left][1] = right
+            else:
+                current = right
+                Llist[right][0] = left
+                
+                if left >= 0:
+                    Llist[left][1] = right
+        else:
+            repair = delete.pop()
+            left, right = Llist[repair]
+            
+            if left >= 0:
+                Llist[left][1] = repair
+                
+            if right <= n - 1:
+                Llist[right][0] = repair
+
+    result = ["O"] * n
+    
+    for i in delete:
+        result[i] = "X"
+        
+    return "".join(result)
+
+# --- LinkedList를 이용한 풀이 3 ---
+# dict로 LinkedList 구현
+
+def solution(n, k, cmd):
+    current = k
+    Llist = dict()
+    
+    for i in range(n):
+        Llist[i] = [i - 1, i + 1]
+    
+    Llist[0][0] = Llist[n - 1][1] = None
+    delete = []
+
+    for c in cmd:
+        if c == "C":
+            left, right = Llist[current]
+            delete.append(current)
+            
+            if right is None: # 삭제된 행이 가장 마지막 행인 경우
+                current = left
+                Llist[left][1] = None
+            else:
+                current = right
+                Llist[right][0] = left
+                
+                if left is not None:
+                    Llist[left][1] = right    
+        elif c == "Z":
+            repair = delete.pop()
+            left, right = Llist[repair]
+            
+            if left is not None:
+                Llist[left][1] = repair
+                
+            if right is not None:
+                Llist[right][0] = repair
+        else:
+            move = int(c.split()[-1])
+            
+            for _ in range(move):
+                current = Llist[current][int(c[0] == "D")]
+
+    result = ["O"] * n
+    
+    for i in delete:
+        result[i] = "X"
+        
     return "".join(result)
