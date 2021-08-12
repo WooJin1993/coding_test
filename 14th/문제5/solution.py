@@ -189,10 +189,13 @@ def parametric_search(num, graph, k, L):
     
 def solution(k, num, links):
     graph = get_graph(links)
-    L = sum(num) // k
+    start = sum(num) // k
+    end = sum(num)
     
     while True:
-        if parametric_search(num, graph, k, L):
+        mid = (start+end) // 2
+        
+        if parametric_search(num, graph, k, mid):
             return L
         else:
             L += 1
@@ -226,7 +229,7 @@ def dfs(l, idx, num, dp, child):
         dp[idx][1] = num[idx]
         
         if num[idx] > l:
-            dp[idx][0] = 10000
+            dp[idx][0] = float("inf")
 
     return dp[idx][0]
 
