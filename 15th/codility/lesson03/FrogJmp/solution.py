@@ -1,8 +1,5 @@
-def solution(A, K):
-    K = K % len(A)
+from math import ceil
+
+def solution(X, Y, D):
     
-    if K == 0:
-        return A
-    
-    return A[K - 1:] + A[:K - 1]
-    
+    return ceil((Y-X) / D)
