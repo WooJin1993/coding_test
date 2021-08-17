@@ -18,3 +18,28 @@ def solution(A):
     result = [r[0] / r[1] for r in result]
 
     return sorted(enumerate(result), key=lambda x: x[1])[0][0]
+
+# --- 풀이 2 ---
+# 참고: https://nukeguys.tistory.com/175
+
+def solution(A):
+    min_avg = (A[0]+A[1]) / 2
+    min_idx = 0
+    
+    for i in range(2, len(A)):
+        avg = (A[i - 2]+A[i - 1]+A[i]) / 3
+        
+        if avg < min_avg:
+            min_avg = avg
+            min_idx = i - 2
+        
+        avg = (A[i - 1]+A[i]) / 2
+        
+        if avg < min_avg:
+            min_avg = avg
+            min_idx = i - 1
+    
+    return min_idx
+        
+        
+            

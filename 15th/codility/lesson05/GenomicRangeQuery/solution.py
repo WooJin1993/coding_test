@@ -17,28 +17,16 @@ def solution(S, P, Q):
 
 # --- 풀이 2 ---
 
-def init(array, tree, node, start, end):
-    if start == end:
-        tree[node - 1] = start
-    else:
-        left, right = 2 * node, 2*node + 1
-        
-        init(array, tree, left, start, (start+end) // 2)
-        init(array, tree, right, (start+end)//2 + 1, end)
-        
-        if array[tree[2*node - 1]] < array[tree[2 * node]]:
-            tree[node - 1] = tree[2*node - 1]
-        else:
-            tree[node - 1] = tree[2 * node]
-
 def solution(S, P, Q):
-    S_dict = {"A": 1, "C": 2, "G": 3, "T": 4}
-    S_num = [S_dict[x] for x in S]
-    tree = [0] * (2*len(S) - 1)
+    S_dict = [("A", 1), ("C", 2), ("G", 3), ("T", 4)]
+    result = []
     
-    init(S_num, tree, 0, 0, len(S_num) - 1)
+    for x, y in zip(P, Q):
+        query = S[x:y + 1]
+        
+        for key, value in S_dict:
+            if key in query:
+                result.append(value)
+                break
     
-    print(tree)
-
-    
-    
+    return result
