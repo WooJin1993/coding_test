@@ -73,9 +73,10 @@ def solution(n, start, end, roads, traps):
     return dijkstra(start, end, graph, traps, visited)
 
 # --- 모범 답안 ---
+# 문제: https://programmers.co.kr/learn/courses/30/lessons/81304
 
-from heapq import heappop, heappush
 from collections import defaultdict
+from heapq import heappop, heappush
 
 def get_graph(roads):
     graph = defaultdict(list)
@@ -90,44 +91,42 @@ def get_graph(roads):
 def solution(n, start, end, roads, traps):
     INF = float("inf")
     graph = get_graph(roads)
-    
-    # trap_dict는 traps의 값들을 0부터 순차적으로 넣기 위해, 궁극적으로는 비트마스킹을 이용하기 위해 변환에 필요한 딕셔너리
-    trap_dict = dict()
+    trap_dict = dict()  # trap_dict는 traps의 값들을 0부터 순차적으로 넣기 위해, 궁극적으로는 비트마스킹을 이용하기 위해 변환에 필요한 딕셔너리
     
     for idx, trap in enumerate(sorted(traps)):
         trap_dict[trap] = idx
         
-    # distances[trap_state][x] = trap_state인 상태에서 x까지 가는데 걸리는 총 cost
-    distances = [[INF] * (n+1) for _ in range(2 ** len(traps))]
+    times = [[INF] * (n+1) for _ in range(2 ** len(traps))] # times[trap_state][x] = trap_state인 상태에서, start에서 출발해서 x까지 가는데 걸리는 최소 시간
 
-    def dijactra(start, end):
-        distances[0][start] = 0
+    def dijactra(start):
+        times[0][start] = 0
         queue = []
         heappush(queue, (0, start, 0))
         
         while queue:
-            cur_dis, cur_node, cur_trap = heappop(queue)
+            cur_time, cur_node, trap_state = heappop(queue)
             
-            if distances[cur_trap][cur_node] < cur_dis:
+            if times[trap_state][cur_node] < cur_time:
                 continue
             
             if cur_node in traps:
-                trap_idx = trap_dict[cur_node]
-                x = True if cur_trap & (1 << trap_idx) >= 1 else False
+                idx = trap_dict[cur_node]
+                x = True if trap_state & (1 << idx) else False
             else:
                 x = False
 
             """
-            token: 초기상태 방향 판단 (True / False)
-            x: cur_node에 따른 방향 (cur_node가 방향 바뀌는데 기여했으면 True 아니면 False)
-            y: adj에 따른 방향 (adj가 방향 바뀌는데 기여했으면 True 아니면 False)
-            token ^ (x ^ y): 초기 상황에 대해서 방향이 몇 번 틀어졌는지 계산해서 이동할 수 있는 간선인지 판단하는 식
+            init_dir: 초기상태 방향 판단 (True / False)
+            x: 현재 cur_node가 발동이 된 함정이라면 True 아니라면 False (함정이 아니면 False)
+            y: 현재 adj_node가 발동이 된 함정이라면 True 아니라면 False (함정이 아니면 False)
+            init_dir ^ (x^y): cur_node에서 adj_node로 갈 수 있다면 True 없다면 False
 
-            [token]  [x]     [y]        [result]
+            init_dir  x      y          init_dir ^ (x^y)
+            --------------------------------------------
             True     True    True   ->  True
             True     True    False  ->  False
-            True     False   True   ->  True
-            True     False   False  ->  False
+            True     False   True   ->  False
+            True     False   False  ->  True
    
             False    True    True   ->  False
             False    True    False  ->  True
@@ -135,32 +134,32 @@ def solution(n, start, end, roads, traps):
             False    False   False  ->  False
             """
             
-            for adj, cost, token in graph.get(cur_node):
-                if adj in traps:
-                    you = trap_dict[adj]
-                    y = True if cur_trap & (1 << you) >= 1 else False
+            for adj_node, time, init_dir in graph.get(cur_node):
+                if adj_node in traps:
+                    idx = trap_dict[adj_node]
+                    y = True if trap_state & (1 << idx) else False
                 else:
                     y = False
                     
-                if token ^ (x ^ y):  # 이동할 수 있는 경로라면
-                    if adj in traps:
-                        next_trap = cur_trap ^ (1 << you)
+                if init_dir ^ (x^y):  # cur_node에서 adj_node로 갈 수 있다면
+                    if adj_node in traps:
+                        next_trap_state = trap_state ^ (1 << idx)
                         
-                        if cur_dis + cost < distances[next_trap][adj]:
-                            distances[next_trap][adj] = cur_dis + cost
-                            heappush(queue, [cur_dis + cost, adj, next_trap])
+                        if cur_time + time < times[next_trap_state][adj_node]:
+                            times[next_trap_state][adj_node] = cur_time + time
+                            heappush(queue, [cur_time + time, adj_node, next_trap_state])
                     else:
-                        if cur_dis + cost < distances[cur_trap][adj]:
-                            distances[cur_trap][adj] = cur_dis + cost
-                            heappush(queue, [distances[cur_trap][adj], adj, cur_trap])
+                        if cur_time + time < times[trap_state][adj_node]:
+                            times[trap_state][adj_node] = cur_time + time
+                            heappush(queue, [cur_time + time, adj_node, trap_state])
 
     # 다익스트라 알고리즘 실행
-    dijactra(start, end)
+    dijactra(start)
 
     # 모든 trap의 상황에 따른 end노드까지의 값들 중 최솟값을 answer에 대입
     answer = INF
     
-    for distance in distances:
-        answer = min(answer, distance[end])
+    for time in times:
+        answer = min(answer, time[end])
             
     return answer

@@ -224,12 +224,11 @@ def dfs(l, idx, num, dp, child):
     elif num[idx] + dp[left][1] <= l or num[idx] + dp[right][1] <= l:
         dp[idx][0] += 1
         dp[idx][1] = num[idx] + min(dp[left][1], dp[right][1])
-    else:
+    elif num[idx] <= l:
         dp[idx][0] += 2
-        dp[idx][1] = num[idx]
-        
-        if num[idx] > l:
-            dp[idx][0] = float("inf")
+        dp[idx][1] = num[idx]        
+    else:
+        dp[idx][0] = float("inf")
 
     return dp[idx][0]
 
