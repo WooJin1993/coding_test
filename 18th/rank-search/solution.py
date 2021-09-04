@@ -73,6 +73,10 @@ def solution(info, query):
     return result
 
 # --- 두 번째 풀이 ----
+# 효율성 전부 실패
+# info_dict의 value를 정렬하지 않고, query 탐색
+# query 배열의 크기(1~100,000)가 info_dict(108)의 크기보다 더 크므로 
+# info_dict의 value를 미리 정렬해놓고 query 탐색하는 것이 더 효율적이었다.
 
 from bisect import bisect_left
 from collections import defaultdict
@@ -88,7 +92,7 @@ def solution(info, query):
         for key in product((lang, "-"), (pos, "-"), (career, "-"), (food, "-")):
             key = " and ".join(key)
             info_dict[key].append(int(score))
-            
+    
     for q in query:
         q = q.split()
         key = " ".join(q[:-1])
@@ -96,5 +100,36 @@ def solution(info, query):
         
         value = info_dict[key]
         result.append(len(value) - bisect_left(sorted(value), score))
+    
+    return result
+
+# --- 세 번째 풀이 ---
+# info_dict의 value를 전부 정렬한 뒤, query 탐색
+
+from bisect import bisect_left
+from collections import defaultdict
+from itertools import product
+
+def solution(info, query):
+    info_dict = defaultdict(list)
+    result = []
+    
+    for x in info:
+        lang, pos, career, food, score = x.split()
+        
+        for key in product((lang, "-"), (pos, "-"), (career, "-"), (food, "-")):
+            key = " and ".join(key)
+            info_dict[key].append(int(score))
+    
+    for value in info_dict.values():
+        value.sort()
+    
+    for q in query:
+        q = q.split()
+        key = " ".join(q[:-1])
+        score = int(q[-1])
+        
+        value = info_dict[key]
+        result.append(len(value) - bisect_left(value, score))
     
     return result
