@@ -1,32 +1,26 @@
 # 문제: https://programmers.co.kr/learn/courses/30/lessons/72413
 
-# --- 첫 풀이 ---
+# --- 풀이 ---
+# INF = sys.maxsize 하는 경우, 효율성 테스트 1개 실패
+# 계산 시간은 INF 크기에도 영향을 받는다.
 
-from heapq import heappop, heappush
+from itertools import product
 
-def dijkstra(graph, start):
-    n = len(graph)
-    INF = float("inf")
-    cost = [INF] * (n+1)
-    queue = []
-    heappush(queue, (0, start))
-    cost[start] = 0
-    
-    while queue:
-        c, cur_node = heappop(queue)
-                
-        if cost[cur_node] < c:
-            continue
-        
-        for next_node, dist in graph[cur_node]:        
-            nc = c + dist
-            
-            if cost[next_node] <= nc:
-                continue
-            
-            cost[next_node] = nc
-            heappush(queue, (nc, next_node))
-    
 def solution(n, s, a, b, fares):
-    answer = 0
-    return answer
+    result = []
+    INF = 1e12
+    graph = [[INF] * (n+1) for _ in range(n + 1)]
+    
+    for i in range(1, n + 1):
+        graph[i][i] = 0
+    
+    for c, d, f in fares:
+        graph[c][d] = graph[d][c] = f
+    
+    for k, i, j in product(range(1, n + 1), repeat=3):
+        graph[i][j] = min(graph[i][j], graph[i][k] + graph[k][j])
+    
+    for mid in range(1, n + 1):
+        result.append(graph[s][mid] + graph[mid][a] + graph[mid][b])
+
+    return min(result)
