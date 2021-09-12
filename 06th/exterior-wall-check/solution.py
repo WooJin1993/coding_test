@@ -1,39 +1,26 @@
-from copy import deepcopy
-from math import isinf
+# 문제 링크: https://programmers.co.kr/learn/courses/30/lessons/60062
 
-def get_dist_matrix(n, weak):
-    N = len(weak)
-    matrix = [[0] * N for _ in range(N)]
-    
-    for i in range(N):
-        for j in range(i + 1, N):
-            matrix[i][j] = weak[j] - weak[i]
-    
-    for i in range(N):
-        for j in range(i):
-            matrix[i][j] = n - matrix[j][i]
-
-    return matrix
-
-def get_n_friends(start, dist_matrix, dist):
-    result = []
-    dist.sort()
-    
-    dist_list = dist_matrix[start]
-    reverse_dist_list = [(12 - d) % 12 for d in dist]
-
-    max_dist = dist.pop()
-
+from itertools import permutations
 
 def solution(n, weak, dist):
-    dist_matrix = get_dist_matrix(n, weak)
-    result = []
+    L = len(weak)
+    cand = []
+    weak_point = weak + [w + n for w in weak] # 원형 배열을 선형 배열로 구현
 
-    for start in range(len(weak)):
-        matrix_copy = deepcopy(dist_matrix)
-        result.append(get_n_friends(start, matrix_copy, dist))
-    
-    if isinf(min(result)):
-        return -1
-    else:
-        return min(result)
+    for i, start in enumerate(weak):
+        for friends in permutations(dist):
+            cnt = 1
+            position = start
+            # 점검하는 친구 배치
+            for friend in friends:
+                position += friend
+                # 끝 포인트까지 도달 못했을 때
+                if position < weak_point[i + L - 1]:
+                    cnt += 1 # 친구 더 투입
+                    # 현재 위치보다 멀리 있는 취약지점 중 가장 가까운 위치로
+                    position = [w for w in weak_point[i+1 : i+L] if w > position][0]
+                else:  # 끝 포인트까지 도달
+                    cand.append(cnt)
+                    break
+
+    return min(cand) if cand else -1
